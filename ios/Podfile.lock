@@ -2,6 +2,21 @@ PODS:
   - boost (1.76.0)
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
+  - EXAV (13.4.1):
+    - ExpoModulesCore
+    - ReactCommon/turbomodule/core
+  - EXConstants (14.4.2):
+    - ExpoModulesCore
+  - EXFileSystem (15.4.2):
+    - ExpoModulesCore
+  - Expo (49.0.6):
+    - ExpoModulesCore
+  - ExpoModulesCore (1.5.9):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
+    - React-NativeModulesApple
+    - React-RCTAppDelegate
+    - ReactCommon/turbomodule/core
   - FBLazyVector (0.72.3)
   - FBReactNativeSpec (0.72.3):
     - RCT-Folly (= 2021.07.22.00)
@@ -375,6 +390,8 @@ PODS:
   - React-jsinspector (0.72.3)
   - React-logger (0.72.3):
     - glog
+  - react-native-safe-area-context (4.7.1):
+    - React-Core
   - React-NativeModulesApple (0.72.3):
     - hermes-engine
     - React-callinvoker
@@ -485,7 +502,22 @@ PODS:
     - React-jsi (= 0.72.3)
     - React-logger (= 0.72.3)
     - React-perflogger (= 0.72.3)
+  - RNFS (2.20.0):
+    - React-Core
+  - RNScreens (3.23.0):
+    - React-Core
+    - React-RCTImage
+  - RNZipArchive (6.0.9):
+    - React-Core
+    - RNZipArchive/Core (= 6.0.9)
+    - SSZipArchive (~> 2.2)
+  - RNZipArchive/Core (6.0.9):
+    - React-Core
+    - SSZipArchive (~> 2.2)
   - SocketRocket (0.6.1)
+  - SSZipArchive (2.4.3)
+  - whisper-rn (0.3.0):
+    - React-Core
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -493,6 +525,11 @@ PODS:
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
+  - EXAV (from `../node_modules/expo-av/ios`)
+  - EXConstants (from `../node_modules/expo-constants/ios`)
+  - EXFileSystem (from `../node_modules/expo-file-system/ios`)
+  - Expo (from `../node_modules/expo`)
+  - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
   - Flipper (= 0.182.0)
@@ -536,6 +573,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -553,6 +591,10 @@ DEPENDENCIES:
   - React-runtimescheduler (from `../node_modules/react-native/ReactCommon/react/renderer/runtimescheduler`)
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - RNFS (from `../node_modules/react-native-fs`)
+  - RNScreens (from `../node_modules/react-native-screens`)
+  - RNZipArchive (from `../node_modules/react-native-zip-archive`)
+  - whisper-rn (from `../node_modules/whisper.rn`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -570,6 +612,7 @@ SPEC REPOS:
     - libevent
     - OpenSSL-Universal
     - SocketRocket
+    - SSZipArchive
     - YogaKit
 
 EXTERNAL SOURCES:
@@ -577,6 +620,16 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
+  EXAV:
+    :path: "../node_modules/expo-av/ios"
+  EXConstants:
+    :path: "../node_modules/expo-constants/ios"
+  EXFileSystem:
+    :path: "../node_modules/expo-file-system/ios"
+  Expo:
+    :path: "../node_modules/expo"
+  ExpoModulesCore:
+    :path: "../node_modules/expo-modules-core"
   FBLazyVector:
     :path: "../node_modules/react-native/Libraries/FBLazyVector"
   FBReactNativeSpec:
@@ -616,6 +669,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-safe-area-context:
+    :path: "../node_modules/react-native-safe-area-context"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-perflogger:
@@ -650,6 +705,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/utils"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNFS:
+    :path: "../node_modules/react-native-fs"
+  RNScreens:
+    :path: "../node_modules/react-native-screens"
+  RNZipArchive:
+    :path: "../node_modules/react-native-zip-archive"
+  whisper-rn:
+    :path: "../node_modules/whisper.rn"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -657,6 +720,11 @@ SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
+  EXAV: f393dfc0b28214d62855a31e06eb21d426d6e2da
+  EXConstants: ce5bbea779da8031ac818c36bea41b10e14d04e1
+  EXFileSystem: d7f59869885cfeab3ac771e2a8d0f5ed98cd3fdb
+  Expo: 5601f86edc81c7e7e1772b9af9ae58fa3b45ad53
+  ExpoModulesCore: e4e437139259c5a73530a8895af69774ff8ec12d
   FBLazyVector: 4cce221dd782d3ff7c4172167bba09d58af67ccb
   FBReactNativeSpec: c6bd9e179757b3c0ecf815864fae8032377903ef
   Flipper: 6edb735e6c3e332975d1b17956bcc584eccf5818
@@ -687,6 +755,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 59d1eb03af7d30b7d66589c410f13151271e8006
   React-jsinspector: b511447170f561157547bc0bef3f169663860be7
   React-logger: c5b527272d5f22eaa09bb3c3a690fee8f237ae95
+  react-native-safe-area-context: 9697629f7b2cda43cf52169bb7e0767d330648c2
   React-NativeModulesApple: c57f3efe0df288a6532b726ad2d0322a9bf38472
   React-perflogger: 6bd153e776e6beed54c56b0847e1220a3ff92ba5
   React-RCTActionSheet: c0b62af44e610e69d9a2049a682f5dba4e9dff17
@@ -704,10 +773,15 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 837c1bebd2f84572db17698cd702ceaf585b0d9a
   React-utils: bcb57da67eec2711f8b353f6e3d33bd8e4b2efa3
   ReactCommon: 3ccb8fb14e6b3277e38c73b0ff5e4a1b8db017a9
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
+  RNScreens: 6a8a3c6b808aa48dca1780df7b73ea524f602c63
+  RNZipArchive: 68a0c6db4b1c103f846f1559622050df254a3ade
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
+  SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
+  whisper-rn: 7c0bd1e68919cf1ddca25a1418ede3e1ab704d0a
   Yoga: 8796b55dba14d7004f980b54bcc9833ee45b28ce
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: fa1c5850b071af338c17b986cc3f905fd441ae52
+PODFILE CHECKSUM: 9d6c83030011cea4f75d5b0581e71852f61a6dd7
 
 COCOAPODS: 1.12.1
