@@ -36,6 +36,9 @@ target 'WhisperJournal' do
 	    Pod::UI.warn e
     end
 	end
+  # add ffmpeg kit react native audio package
+  pod 'ffmpeg-kit-react-native', :subspecs => ['audio'], :podspec => '../node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec'
+
   config = use_native_modules!
 
   # Flags change depending on the env values.

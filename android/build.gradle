@@ -3,13 +3,18 @@
 buildscript {
     ext {
         buildToolsVersion = "33.0.0"
-        minSdkVersion = 21
+        // ffmpeg kit react native requires min sdk of 24 on main release
+        // unless we use LTS which might have more limited functionality
+        minSdkVersion = 24
         compileSdkVersion = 33
         targetSdkVersion = 33
 
         // We use NDK 24 to prevent issues with whisper.rn on apple silicon
         // see https://github.com/mybigday/whisper.rn/blob/main/TROUBLESHOOTING.md
         ndkVersion = "24.0.8215888"
+
+        // set ffmpeg package to just bundle the audio stuff
+        ffmpegKitPackage = "audio"
     }
     repositories {
         google()
