@@ -11,7 +11,8 @@ import JournalScreen from './JournalScreen';
 import RecordScreen from './RecordScreen';
 import SettingsScreen from './SettingsScreen';
 import JournalEntryScreen from './JournalEntryScreen';
-import {RootParamList} from './types';
+import type {ModelName, RootParamList} from './types';
+import {allModelNames} from './types';
 import {CombinedDarkTheme, CombinedDefaultTheme} from './themes';
 
 const Tab = createMaterialBottomTabNavigator<RootParamList>();
@@ -44,11 +45,28 @@ export default function App() {
   const isThemeDark = useColorScheme() === 'dark';
   const theme = isThemeDark ? CombinedDarkTheme : CombinedDefaultTheme;
 
+  const [modelName, setModelName] = React.useState<ModelName>(allModelNames[0]);
+  const [language, setLanguage] = React.useState('auto');
+  const [translate, setTranslate] = React.useState(true);
   const settings = React.useMemo(
     () => ({
       isThemeDark,
+      modelName,
+      setModelName,
+      language,
+      setLanguage,
+      translate,
+      setTranslate,
     }),
-    [isThemeDark],
+    [
+      isThemeDark,
+      modelName,
+      setModelName,
+      language,
+      setLanguage,
+      translate,
+      setTranslate,
+    ],
   );
 
   return (
