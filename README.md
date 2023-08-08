@@ -1,10 +1,6 @@
 # WhisperJournal
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-![android](https://img.shields.io/badge/android-3DDC84?logo=android&logoColor=white) [![Android Build status](https://build.appcenter.ms/v0.1/apps/767e9717-9177-438e-b3e6-618d7d779ea4/branches/main/badge)](https://appcenter.ms)
-
-![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white) [![iOS Build status](https://build.appcenter.ms/v0.1/apps/fbefa9e2-b610-461a-9bc2-eed714444570/branches/main/badge)](https://appcenter.ms)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![android](https://img.shields.io/badge/android-3DDC84?logo=android&logoColor=white) [![Android Build status](https://build.appcenter.ms/v0.1/apps/767e9717-9177-438e-b3e6-618d7d779ea4/branches/main/badge)](https://appcenter.ms) ![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white) [![iOS Build status](https://build.appcenter.ms/v0.1/apps/fbefa9e2-b610-461a-9bc2-eed714444570/branches/main/badge)](https://appcenter.ms)
 
 Privacy-first voice journal app built using [React Native](https://reactnative.dev) using [whisper.cpp](https://github.com/ggerganov/whisper.cpp/) through [whisper.rn](https://github.com/mybigday/whisper.rn/) for local transcription of voice recordings.
 
