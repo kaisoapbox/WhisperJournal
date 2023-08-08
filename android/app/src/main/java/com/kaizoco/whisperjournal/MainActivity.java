@@ -1,4 +1,4 @@
-package com.whisperjournal;
+package com.kaizoco.whisperjournal;
 
 import android.os.Bundle;
 import expo.modules.ReactActivityDelegateWrapper;

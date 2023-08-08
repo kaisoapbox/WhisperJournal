@@ -1,4 +1,4 @@
-package com.whisperjournal;
+package com.kaizoco.whisperjournal;
 
 import android.app.Application;
 import android.content.res.Configuration;
