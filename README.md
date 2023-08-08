@@ -1,82 +1,58 @@
-[![Android Build status](https://build.appcenter.ms/v0.1/apps/767e9717-9177-438e-b3e6-618d7d779ea4/branches/main/badge)](https://appcenter.ms)
-[![iOS Build status](https://build.appcenter.ms/v0.1/apps/fbefa9e2-b610-461a-9bc2-eed714444570/branches/main/badge)](https://appcenter.ms)
+# WhisperJournal
 
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-# Getting Started
+![android](https://img.shields.io/badge/android-3DDC84?logo=android&logoColor=white) [![Android Build status](https://build.appcenter.ms/v0.1/apps/767e9717-9177-438e-b3e6-618d7d779ea4/branches/main/badge)](https://appcenter.ms)
 
-> **Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white) [![iOS Build status](https://build.appcenter.ms/v0.1/apps/fbefa9e2-b610-461a-9bc2-eed714444570/branches/main/badge)](https://appcenter.ms)
 
-## Step 1: Start the Metro Server
+Privacy-first voice journal app built using [React Native](https://reactnative.dev) using [whisper.cpp](https://github.com/ggerganov/whisper.cpp/) through [whisper.rn](https://github.com/mybigday/whisper.rn/) for local transcription of voice recordings.
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+Features:
 
-To start Metro, run the following command from the _root_ of your React Native project:
+- Autodetect language, for multi-language support
+- Translate non-English audio to an English transcript
+- Integrated noise reduction using AFFTDN in FFMPEG
+- Model selection
+- Full privacy thanks to local inference; the only network calls are to download transcription models, not even analytics/telemetry
+- Android and iOS
+- Dark mode
+- Open-source
+
+# Dev environment setup
+
+Tested on MacOS 13.4.1 running on Apple Silicon (M2 chip), using:
+
+- Node 18.17.0
+- Java 11 (openjdk 11.0.20 2023-07-18 LTS)
+- XCode 13.4.1
+
+## Step 0: Set up local env for cross-platform development
+
+Follow the instructions under [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) for your platform under the "React Native CLI Quickstart" guide for both target OSes until the "Creating a new application" step.
+
+## Step 1: Install all the things
+
+Assuming you've already set up all the other things, `yarn` should ship as part of `node`; as a result, you can just run `yarn` and everything should install.
+
+NOTE: You might have to run `corepack enable` to activate yarn, if you just installed `node`.
 
 ```bash
-# using npm
-npm start
+git clone git@github.com:kaizoco/WhisperJournal.git
+cd WhisperJournal
+yarn
+```
 
-# OR using Yarn
+## Step 2: Build app
+
+```bash
 yarn start
-```
 
-## Step 2: Start your Application
-
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
-
-```bash
-# using npm
-npm run android
-
-# OR using Yarn
 yarn android
-```
-
-### For iOS
-
-```bash
-# using npm
-npm run ios
-
-# OR using Yarn
+# or for ios
 yarn ios
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+# About Kaizo & Co.
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
-
-## Step 3: Modifying your App
-
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+We make cool things, check out our [website](https://kaizoco.com)!
