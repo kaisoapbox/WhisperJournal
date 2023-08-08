@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Divider, List} from 'react-native-paper';
+import {Divider, List} from 'react-native-paper';
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import {RootParamList} from './types';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -10,6 +10,7 @@ import {ensureDirExists} from './helpers';
 
 type Props = BottomTabScreenProps<RootParamList, 'Journal'>;
 
+// TODO: improve journal entry browser - choose sort, delete files, description/preview
 export default function JournalScreen({navigation}: Props) {
   const [docDir, setDocDir] = React.useState<string>('');
   const [refreshing, setRefreshing] = React.useState(true);
@@ -46,15 +47,9 @@ export default function JournalScreen({navigation}: Props) {
       });
     }
   }, [docDir, onRefresh]);
-  function deleteEverything() {
-    console.log('deleting all wavs');
-    files.map(filename => {
-      FileSystem.deleteAsync(docDir + filename);
-    });
-  }
+
   return (
     <SafeAreaView style={styles.flex}>
-      <Button onPress={deleteEverything}>Delete everything</Button>
       <List.Section style={styles.flex}>
         <List.Subheader>Journal Entries</List.Subheader>
         <FlatList

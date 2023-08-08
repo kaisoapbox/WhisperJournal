@@ -22,7 +22,7 @@ const Stack = createNativeStackNavigator<RootParamList>();
 
 function HomeTabs() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator initialRouteName="Record">
       <Tab.Screen
         name="Journal"
         component={JournalScreen}

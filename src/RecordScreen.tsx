@@ -50,6 +50,7 @@ export default function RecordScreen() {
         `Downloading and initializing model ${settings.modelName}`,
       );
       setCanRecord(false);
+      // TODO: add download progress bar
       initializeContext(
         whisperContext,
         setWhisperContext,

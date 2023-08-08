@@ -60,6 +60,7 @@ export default function SettingsScreen() {
         </List.Section>
         <Divider />
         <List.Section>
+          {/* TODO: show which models are downloaded */}
           <List.Subheader>Select model</List.Subheader>
           <RadioButton.Group
             onValueChange={value => settings.setModelName(value as ModelName)}
