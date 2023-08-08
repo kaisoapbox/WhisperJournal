@@ -13,6 +13,7 @@ import SettingsScreen from './SettingsScreen';
 import JournalEntryScreen from './JournalEntryScreen';
 import type {ModelName, RootParamList} from './types';
 import {allModelNames} from './types';
+import {readSettings, writeSettings} from './helpers';
 import {CombinedDarkTheme, CombinedDefaultTheme} from './themes';
 
 const Tab = createMaterialBottomTabNavigator<RootParamList>();
@@ -48,8 +49,10 @@ export default function App() {
   const [modelName, setModelName] = React.useState<ModelName>(allModelNames[0]);
   const [language, setLanguage] = React.useState('auto');
   const [translate, setTranslate] = React.useState(true);
-  const settings = React.useMemo(
-    () => ({
+  const [noiseReduction, setNoiseReduction] = React.useState(true);
+  const [shouldWrite, setShouldWrite] = React.useState(false);
+  const settings = React.useMemo(() => {
+    const _settings = {
       isThemeDark,
       modelName,
       setModelName,
@@ -57,17 +60,44 @@ export default function App() {
       setLanguage,
       translate,
       setTranslate,
-    }),
-    [
-      isThemeDark,
-      modelName,
-      setModelName,
-      language,
-      setLanguage,
-      translate,
-      setTranslate,
-    ],
-  );
+      noiseReduction,
+      setNoiseReduction,
+    };
+    if (shouldWrite) {
+      writeSettings(_settings);
+    }
+    return _settings;
+  }, [
+    isThemeDark,
+    modelName,
+    setModelName,
+    language,
+    setLanguage,
+    translate,
+    setTranslate,
+    noiseReduction,
+    setNoiseReduction,
+    shouldWrite,
+  ]);
+
+  // to initialize settings
+  React.useEffect(() => {
+    readSettings().then(_settings => {
+      if (_settings.modelName !== undefined) {
+        setModelName(_settings.modelName);
+      }
+      if (_settings.language !== undefined) {
+        setLanguage(_settings.language);
+      }
+      if (_settings.translate !== undefined) {
+        setTranslate(_settings.translate);
+      }
+      if (_settings.noiseReduction !== undefined) {
+        setNoiseReduction(_settings.noiseReduction);
+      }
+      setShouldWrite(true);
+    });
+  }, []);
 
   return (
     <SettingsContext.Provider value={settings}>
@@ -79,7 +109,11 @@ export default function App() {
               component={HomeTabs}
               options={{headerShown: false}}
             />
-            <Stack.Screen name="JournalEntry" component={JournalEntryScreen} />
+            <Stack.Screen
+              name="JournalEntry"
+              component={JournalEntryScreen}
+              options={{headerTitle: 'View Journal Entry'}}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </PaperProvider>

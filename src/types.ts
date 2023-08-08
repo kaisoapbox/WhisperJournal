@@ -1,6 +1,6 @@
 export type RootParamList = {
   Home: undefined;
-  JournalEntry: undefined;
+  JournalEntry: {subDir: string};
   Journal: undefined;
   Record: undefined;
   Settings: undefined;
@@ -17,3 +17,15 @@ export const allModelNames = [
 ] as const;
 
 export type ModelName = (typeof allModelNames)[number];
+
+export type SettingsContextType = {
+  isThemeDark: boolean;
+  modelName: ModelName;
+  setModelName: React.Dispatch<React.SetStateAction<ModelName>>;
+  language: string;
+  setLanguage: React.Dispatch<React.SetStateAction<string>>;
+  translate: boolean;
+  setTranslate: React.Dispatch<React.SetStateAction<boolean>>;
+  noiseReduction: boolean;
+  setNoiseReduction: React.Dispatch<React.SetStateAction<boolean>>;
+};
