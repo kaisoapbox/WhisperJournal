@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![android](https://img.shields.io/badge/android-3DDC84?logo=android&logoColor=white) [![Android Build status](https://build.appcenter.ms/v0.1/apps/767e9717-9177-438e-b3e6-618d7d779ea4/branches/main/badge)](https://appcenter.ms) ![iOS](https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white) [![iOS Build status](https://build.appcenter.ms/v0.1/apps/fbefa9e2-b610-461a-9bc2-eed714444570/branches/main/badge)](https://appcenter.ms)
 
-<a href="https://play.google.com/store/apps/details?id=com.kaizoco.WhisperJournal">
+<a href="https://play.google.com/store/apps/details?id=com.kaizoco.whisperjournal">
   <img src="https://cdn.rawgit.com/steverichey/google-play-badge-svg/master/img/en_get.svg" width="25%">
 </a>
   
