@@ -15,6 +15,7 @@ import type {ModelName, RootParamList} from './types';
 import {allModelNames} from './types';
 import {readSettings, writeSettings} from './helpers';
 import {CombinedDarkTheme, CombinedDefaultTheme} from './themes';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 const Tab = createMaterialBottomTabNavigator<RootParamList>();
 
@@ -101,22 +102,24 @@ export default function App() {
 
   return (
     <SettingsContext.Provider value={settings}>
-      <PaperProvider theme={theme}>
-        <NavigationContainer theme={theme}>
-          <Stack.Navigator>
-            <Stack.Screen
-              name="Home"
-              component={HomeTabs}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="JournalEntry"
-              component={JournalEntryScreen}
-              options={{headerTitle: 'View Journal Entry'}}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </PaperProvider>
+      <SafeAreaProvider>
+        <PaperProvider theme={theme}>
+          <NavigationContainer theme={theme}>
+            <Stack.Navigator>
+              <Stack.Screen
+                name="Home"
+                component={HomeTabs}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="JournalEntry"
+                component={JournalEntryScreen}
+                options={{headerTitle: 'View Journal Entry'}}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </PaperProvider>
+      </SafeAreaProvider>
     </SettingsContext.Provider>
   );
 }

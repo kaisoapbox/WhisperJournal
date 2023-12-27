@@ -1,10 +1,16 @@
 import React from 'react';
-import {ActivityIndicator, IconButton, Text} from 'react-native-paper';
+import {
+  ActivityIndicator,
+  IconButton,
+  Text,
+  ProgressBar,
+} from 'react-native-paper';
 import {Audio} from 'expo-av';
 import {FFmpegKit, ReturnCode} from 'ffmpeg-kit-react-native';
-import type {TranscribeOptions, WhisperContext} from 'whisper.rn';
+import type {TranscribeFileOptions, WhisperContext} from 'whisper.rn';
 import {getJournalDir} from './constants';
 import {
+  log,
   ensureDirExists,
   formatTimeString,
   getFilename,
@@ -27,20 +33,24 @@ export default function RecordScreen() {
   >();
   const [status, setStatus] = React.useState('Initializing...');
   const [elapsed, setElapsed] = React.useState<number | undefined>();
+  const [progress, setProgress] = React.useState<number>(100);
   const [intervalFn, setIntervalFn] = React.useState<
-    NodeJS.Timer | undefined
+    NodeJS.Timeout | undefined
   >();
   const [whisperContext, setWhisperContext] = React.useState<
     WhisperContext | undefined
   >();
 
-  function setStatusAndLog(message: string) {
-    console.log(message);
+  function setStatusAndLog(
+    message: string,
+    fn: (message: any) => void = console.log,
+  ) {
+    log(message, fn);
     setStatus(message);
   }
 
   React.useEffect(() => {
-    console.log('called useEffect hook');
+    log('called useEffect hook');
     if (docDir === '') {
       getJournalDir().then(dir => {
         setDocDir(dir);
@@ -56,6 +66,13 @@ export default function RecordScreen() {
         setWhisperContext,
         docDir,
         settings.modelName,
+        data => {
+          if (data.totalBytesExpectedToWrite !== -1) {
+            setProgress(
+              data.totalBytesWritten / data.totalBytesExpectedToWrite,
+            );
+          }
+        },
       ).then(() => {
         setLoadedModel(settings.modelName);
         setCanRecord(true);
@@ -66,31 +83,48 @@ export default function RecordScreen() {
 
   async function transcribe(filename: string) {
     if (!whisperContext) {
-      return console.log('No context');
+      return log('No context');
     }
 
     setStatusAndLog('Transcribing...');
     const startTime = Date.now();
-    const options: TranscribeOptions = {
+    const options: TranscribeFileOptions = {
       language: settings.modelName.endsWith('.en') ? 'en' : settings.language,
       translate:
         settings.translate &&
         settings.language === 'auto' &&
         !settings.modelName.endsWith('.en'),
+      onProgress: _progress => {
+        const endTime = Date.now();
+        setProgress(_progress / 100);
+        const timeLeft = (
+          ((endTime - startTime) * (100 - _progress)) /
+          _progress /
+          1000
+        ).toFixed(0);
+        setStatusAndLog(`Transcribing...\nestimated time left: ${timeLeft}s`);
+      },
+      onNewSegments: segment => {
+        log(segment.result);
+      },
     };
-    console.log(options);
+    log(options);
     const {
       // stop,
       promise,
     } = whisperContext.transcribe(docDir + filename, options);
-    const {result} = await promise;
-    const endTime = Date.now();
-    console.log(
-      `Transcribed result: ${result}\n` +
-        `Transcribed in ${endTime - startTime}ms`,
-    );
-    setStatusAndLog('Finished transcribing!');
-    return result;
+    promise.then(transcript => {
+      const endTime = Date.now();
+      log(
+        `Transcribed result: ${transcript.result}\n` +
+          `Transcribed in ${endTime - startTime}ms`,
+      );
+      setStatusAndLog(`Finished transcribing in ${endTime - startTime}ms!`);
+    });
+    promise.catch(error => {
+      setStatusAndLog(error);
+    });
+    return promise;
   }
 
   async function startRecording() {
@@ -110,6 +144,7 @@ export default function RecordScreen() {
       const {recording} = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY,
       );
+      setProgress(-1);
       setElapsed(0);
       const timeNow = Date.now();
       const interval = setInterval(() => {
@@ -119,8 +154,7 @@ export default function RecordScreen() {
       setIsRecording(recording);
       setStatusAndLog('Recording...');
     } catch (err) {
-      setStatusAndLog(`Failed to start recording: ${err}`);
-      console.error('Failed to start recording', err);
+      setStatusAndLog(`Failed to start recording: ${err}`, console.error);
     }
   }
 
@@ -136,7 +170,7 @@ export default function RecordScreen() {
         allowsRecordingIOS: false,
       });
       const uri = isRecording.getURI();
-      console.log('Recording stopped and stored at', uri);
+      log(`Recording stopped and stored at ${uri}`);
       // use ffmpeg to convert output file to 16-bit wav for whisper
       // TODO: clean up this part here
       const dirName = getFilename('');
@@ -149,19 +183,20 @@ export default function RecordScreen() {
         ? '-af "afftdn=nf=-25" '
         : '';
       const ffmpegCommand = `-i ${uri} -ar 16000 -ac 1 ${noiseReductionString}-c:a pcm_s16le ${uriOut}`;
-      console.log(ffmpegCommand);
+      log(ffmpegCommand);
       FFmpegKit.execute(ffmpegCommand).then(async session => {
         const returnCode = await session.getReturnCode();
 
         if (ReturnCode.isSuccess(returnCode)) {
-          console.log('Converted file successfully written to', uriOut);
+          log(`Converted file successfully written to ${uriOut}`);
           // initiate transcription
           const transcript = await transcribe(filename);
           if (transcript) {
+            const {result} = transcript;
             setStatusAndLog('Writing to file...');
             FileSystem.writeAsStringAsync(
               `${subDir}${dirName}.md`,
-              transcript,
+              result,
             ).then(() => {
               setStatusAndLog(`Done writing to file '${dirName}'!`);
             });
@@ -169,10 +204,10 @@ export default function RecordScreen() {
           // SUCCESS
         } else if (ReturnCode.isCancel(returnCode)) {
           // CANCEL
-          console.log('cancelled');
+          log('cancelled');
         } else {
           // ERROR
-          console.log('error');
+          log('error');
         }
       });
     }
@@ -192,6 +227,11 @@ export default function RecordScreen() {
         <ActivityIndicator animating={true} size="large" />
       )}
       <Text>{status}</Text>
+      <ProgressBar
+        progress={progress}
+        visible={progress !== -1 && progress !== 1}
+        style={styles.progressBar}
+      />
       {elapsed !== undefined && <Text>{formatTimeString(elapsed)}</Text>}
     </SafeAreaView>
   );
@@ -202,5 +242,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
+  },
+  progressBar: {
+    width: 200,
   },
 });

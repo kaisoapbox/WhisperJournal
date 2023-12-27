@@ -15,7 +15,7 @@ import {Audio} from 'expo-av';
 import type {AVPlaybackStatus} from 'expo-av';
 import {getDummyAsset, formatTimeString} from './helpers';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {StyleSheet} from 'react-native';
+import {ScrollView, StyleSheet} from 'react-native';
 
 type Props = NativeStackScreenProps<RootParamList, 'JournalEntry'>;
 
@@ -103,7 +103,7 @@ export default function JournalEntryScreen({route}: Props) {
   }, [subDir]);
 
   return (
-    <SafeAreaView style={styles.top}>
+    <SafeAreaView style={styles.view} edges={{bottom: 'maximum'}}>
       <Text variant={'headlineSmall'} style={styles.headers}>
         {subDir}
       </Text>
@@ -129,11 +129,15 @@ export default function JournalEntryScreen({route}: Props) {
       )}
       <Divider />
       {transcript && (
-        <Surface style={styles.surface}>
-          <Text variant="bodyLarge" style={styles.headers}>
-            Transcript
-          </Text>
-          <Text selectable={true}>{transcript}</Text>
+        <Surface style={styles.surfaceTranscript}>
+          <ScrollView>
+            <Text variant="bodyLarge" style={styles.headers}>
+              Transcript
+            </Text>
+            <Text selectable={true} style={styles.text}>
+              {transcript}
+            </Text>
+          </ScrollView>
         </Surface>
       )}
     </SafeAreaView>
@@ -147,6 +151,13 @@ const styles = StyleSheet.create({
     margin: 8,
     borderRadius: 8,
   },
+  surfaceTranscript: {
+    padding: 8,
+    margin: 8,
+    borderRadius: 8,
+    flex: 1,
+  },
   headers: {alignSelf: 'center', fontWeight: 'bold'},
-  top: {marginTop: 8},
+  view: {marginTop: 8, flex: 1},
+  text: {flex: 1, marginRight: 8},
 });

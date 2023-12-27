@@ -16,6 +16,10 @@ const formatter = new Intl.DateTimeFormat('zh-u-hc-h24', {
   hour12: false,
 });
 
+export function log(message: any, fn: (message: any) => void = console.log) {
+  fn(message);
+}
+
 export function getFilename(suffix: string = '.wav') {
   const currentDate = new Date();
   // YYYYMMDD-HH-MM-SS
@@ -67,13 +71,13 @@ export function getDummyAsset(parentDir: string, filename: string) {
 export async function ensureDirExists(dir: string) {
   const dirInfo = await FileSystem.getInfoAsync(dir);
   if (!dirInfo.exists) {
-    console.log("Directory doesn't exist, creating...");
+    log("Directory doesn't exist, creating...");
     await FileSystem.makeDirectoryAsync(dir, {intermediates: true});
   }
 }
 
 export function writeSettings(settings: SettingsContextType) {
-  console.log('updating settings');
+  log('updating settings');
   const selectedSettings = (({
     modelName,
     language,
@@ -98,7 +102,7 @@ export async function readSettings() {
   const fileInfo = await FileSystem.getInfoAsync(settingsFile);
   if (fileInfo.exists) {
     const settingsString = await FileSystem.readAsStringAsync(settingsFile);
-    console.log(settingsString);
+    log(settingsString);
     return JSON.parse(settingsString);
   } else {
     return {};
@@ -113,23 +117,27 @@ export async function initializeContext(
   >,
   dir: string,
   modelName: ModelName,
+  downloadCallback: FileSystem.FileSystemNetworkTaskProgressCallback<FileSystem.DownloadProgressData>,
 ) {
   if (whisperContext) {
-    console.log('Found previous context');
+    log('Found previous context');
     await whisperContext.release();
     setWhisperContext(undefined);
-    console.log('Released previous context');
+    log('Released previous context');
   }
   await ensureDirExists(dir);
   const modelFilePath = `${dir}/ggml-${modelName}.bin`;
   if ((await FileSystem.getInfoAsync(modelFilePath)).exists) {
-    console.log(`Model ${modelName} already exists`);
+    log(`Model ${modelName} already exists`);
   } else {
-    console.log(`Start Download Model ${modelName}`);
-    await FileSystem.downloadAsync(
+    log(`Start Download Model ${modelName}`);
+    const download = FileSystem.createDownloadResumable(
       `${modelHost}/ggml-${modelName}.bin`,
       modelFilePath,
+      {},
+      downloadCallback,
     );
+    download.downloadAsync();
   }
 
   // enable Core ML on iOS
@@ -138,19 +146,19 @@ export async function initializeContext(
     Platform.OS === 'ios' &&
     (await FileSystem.getInfoAsync(coremlModelFilePath)).exists
   ) {
-    console.log(`Core ML Model for ${modelName} already exists`);
+    log(`Core ML Model for ${modelName} already exists`);
   } else if (Platform.OS === 'ios') {
-    console.log(`Start Download Core ML Model for ${modelName}`);
+    log(`Start Download Core ML Model for ${modelName}`);
     await FileSystem.downloadAsync(
       `${modelHost}/ggml-${modelName}-encoder.mlmodelc.zip`,
       coremlModelFilePath,
     );
-    console.log(`Downloaded Core ML Model file for ${modelName}`);
+    log(`Downloaded Core ML Model file for ${modelName}`);
     await unzip(coremlModelFilePath, dir);
-    console.log(`Unzipped Core ML Model for ${modelName} successfully.`);
+    log(`Unzipped Core ML Model for ${modelName} successfully.`);
   }
 
-  console.log('Initialize context...');
+  log('Initialize context...');
   const startTime = Date.now();
   const ctx = await initWhisper({
     filePath: modelFilePath,
@@ -160,7 +168,7 @@ export async function initializeContext(
         : undefined,
   });
   const endTime = Date.now();
-  console.log('Loaded model, ID:', ctx.id);
-  console.log(`Loaded model ${modelName} in ${endTime - startTime} ms`);
+  log(`Loaded model, ID: ${ctx.id}`);
+  log(`Loaded model ${modelName} in ${endTime - startTime} ms`);
   setWhisperContext(ctx);
 }
