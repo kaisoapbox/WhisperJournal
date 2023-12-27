@@ -3,10 +3,11 @@ import {RadioButton, SegmentedButtons, Divider, List} from 'react-native-paper';
 import {SettingsContext} from './SettingsContext';
 import {allModelNames} from './types';
 import type {ModelName} from './types';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {ScrollView, StyleSheet} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ScrollView, StyleSheet, View} from 'react-native';
 
 export default function SettingsScreen() {
+  const insets = useSafeAreaInsets();
   const settings = React.useContext(SettingsContext);
   const [toEnglish, setToEnglish] = React.useState(
     settings.translate ? 'yes' : 'no',
@@ -14,8 +15,21 @@ export default function SettingsScreen() {
   const [noiseReduction, setNoiseReduction] = React.useState(
     settings.noiseReduction ? 'yes' : 'no',
   );
+
+  const styles = StyleSheet.create({
+    spacing: {
+      padding: 8,
+    },
+    view: {
+      flex: 1,
+      paddingTop: insets.top,
+      paddingBottom: insets.bottom,
+      paddingLeft: insets.left,
+      paddingRight: insets.right,
+    },
+  });
   return (
-    <SafeAreaView>
+    <View style={styles.view}>
       <ScrollView style={styles.spacing}>
         <List.Section>
           <List.Subheader>Input Language</List.Subheader>
@@ -77,12 +91,6 @@ export default function SettingsScreen() {
           </RadioButton.Group>
         </List.Section>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  spacing: {
-    padding: 8,
-  },
-});

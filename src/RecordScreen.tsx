@@ -18,11 +18,12 @@ import {
 } from './helpers';
 import {SettingsContext} from './SettingsContext';
 import type {ModelName} from './types';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as FileSystem from 'expo-file-system';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
 export default function RecordScreen() {
+  const insets = useSafeAreaInsets();
   const settings = React.useContext(SettingsContext);
 
   const [docDir, setDocDir] = React.useState('');
@@ -33,7 +34,7 @@ export default function RecordScreen() {
   >();
   const [status, setStatus] = React.useState('Initializing...');
   const [elapsed, setElapsed] = React.useState<number | undefined>();
-  const [progress, setProgress] = React.useState<number>(100);
+  const [progress, setProgress] = React.useState<number>(-1);
   const [intervalFn, setIntervalFn] = React.useState<
     NodeJS.Timeout | undefined
   >();
@@ -213,8 +214,23 @@ export default function RecordScreen() {
     }
   }
 
+  const styles = StyleSheet.create({
+    view: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingTop: insets.top,
+      paddingBottom: insets.bottom,
+      paddingLeft: insets.left,
+      paddingRight: insets.right,
+    },
+    progressBar: {
+      width: 200,
+    },
+  });
+
   return (
-    <SafeAreaView style={styles.recording}>
+    <View style={styles.view}>
       {canRecord ? (
         <IconButton
           icon={isRecording ? 'stop' : 'record'}
@@ -233,17 +249,6 @@ export default function RecordScreen() {
         style={styles.progressBar}
       />
       {elapsed !== undefined && <Text>{formatTimeString(elapsed)}</Text>}
-    </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  recording: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-  },
-  progressBar: {
-    width: 200,
-  },
-});

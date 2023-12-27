@@ -14,12 +14,13 @@ import * as FileSystem from 'expo-file-system';
 import {Audio} from 'expo-av';
 import type {AVPlaybackStatus} from 'expo-av';
 import {getDummyAsset, formatTimeString} from './helpers';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {ScrollView, StyleSheet} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ScrollView, StyleSheet, View} from 'react-native';
 
 type Props = NativeStackScreenProps<RootParamList, 'JournalEntry'>;
 
 export default function JournalEntryScreen({route}: Props) {
+  const insets = useSafeAreaInsets();
   const {subDir} = route.params;
   const [recording, setRecording] = React.useState<Audio.Sound | undefined>();
   const [progress, setProgress] = React.useState(0);
@@ -102,8 +103,33 @@ export default function JournalEntryScreen({route}: Props) {
     });
   }, [subDir]);
 
+  const styles = StyleSheet.create({
+    player: {alignItems: 'center', justifyContent: 'center'},
+    surface: {
+      padding: 8,
+      margin: 8,
+      borderRadius: 8,
+    },
+    surfaceTranscript: {
+      padding: 8,
+      margin: 8,
+      borderRadius: 8,
+      flex: 1,
+    },
+    headers: {alignSelf: 'center', fontWeight: 'bold'},
+    view: {
+      marginTop: 8,
+      flex: 1,
+      paddingTop: insets.top,
+      paddingBottom: insets.bottom,
+      paddingLeft: insets.left,
+      paddingRight: insets.right,
+    },
+    text: {flex: 1, marginRight: 8},
+  });
+
   return (
-    <SafeAreaView style={styles.view} edges={{bottom: 'maximum'}}>
+    <View style={styles.view}>
       <Text variant={'headlineSmall'} style={styles.headers}>
         {subDir}
       </Text>
@@ -140,24 +166,6 @@ export default function JournalEntryScreen({route}: Props) {
           </ScrollView>
         </Surface>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  player: {alignItems: 'center', justifyContent: 'center'},
-  surface: {
-    padding: 8,
-    margin: 8,
-    borderRadius: 8,
-  },
-  surfaceTranscript: {
-    padding: 8,
-    margin: 8,
-    borderRadius: 8,
-    flex: 1,
-  },
-  headers: {alignSelf: 'center', fontWeight: 'bold'},
-  view: {marginTop: 8, flex: 1},
-  text: {flex: 1, marginRight: 8},
-});

@@ -2,16 +2,17 @@ import React from 'react';
 import {Divider, List} from 'react-native-paper';
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import {RootParamList} from './types';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as FileSystem from 'expo-file-system';
 import {getJournalDir} from './constants';
-import {RefreshControl, FlatList, StyleSheet} from 'react-native';
+import {RefreshControl, FlatList, StyleSheet, View} from 'react-native';
 import {ensureDirExists} from './helpers';
 
 type Props = BottomTabScreenProps<RootParamList, 'Journal'>;
 
 // TODO: improve journal entry browser - choose sort, delete files, description/preview
 export default function JournalScreen({navigation}: Props) {
+  const insets = useSafeAreaInsets();
   const [docDir, setDocDir] = React.useState<string>('');
   const [refreshing, setRefreshing] = React.useState(true);
   const [files, setFiles] = React.useState<string[]>([]);
@@ -48,8 +49,21 @@ export default function JournalScreen({navigation}: Props) {
     }
   }, [docDir, onRefresh]);
 
+  const styles = StyleSheet.create({
+    view: {
+      flex: 1,
+      paddingTop: insets.top,
+      paddingBottom: insets.bottom,
+      paddingLeft: insets.left,
+      paddingRight: insets.right,
+    },
+    flex: {
+      flex: 1,
+    },
+  });
+
   return (
-    <SafeAreaView style={styles.flex}>
+    <View style={styles.view}>
       <List.Section style={styles.flex}>
         <List.Subheader>Journal Entries</List.Subheader>
         <FlatList
@@ -73,12 +87,6 @@ export default function JournalScreen({navigation}: Props) {
           scrollEnabled={true}
         />
       </List.Section>
-    </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-});
