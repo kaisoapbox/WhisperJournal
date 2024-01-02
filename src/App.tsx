@@ -12,10 +12,11 @@ import RecordScreen from './RecordScreen';
 import SettingsScreen from './SettingsScreen';
 import JournalEntryScreen from './JournalEntryScreen';
 import type {ModelName, RootParamList} from './types';
-import {allModelNames} from './types';
-import {readSettings, writeSettings} from './helpers';
+import {FileDirectoryType, allModelNames} from './types';
+import {getSAFDir, readSettings, writeSettings} from './helpers';
 import {CombinedDarkTheme, CombinedDefaultTheme} from './themes';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {docDir} from './constants';
 
 const Tab = createMaterialBottomTabNavigator<RootParamList>();
 
@@ -52,6 +53,7 @@ export default function App() {
   const [translate, setTranslate] = React.useState(true);
   const [noiseReduction, setNoiseReduction] = React.useState(true);
   const [shouldWrite, setShouldWrite] = React.useState(false);
+  const [journalDir, setJournalDir] = React.useState<FileDirectoryType>(docDir);
   const settings = React.useMemo(() => {
     const _settings = {
       isThemeDark,
@@ -63,6 +65,8 @@ export default function App() {
       setTranslate,
       noiseReduction,
       setNoiseReduction,
+      journalDir,
+      setJournalDir,
     };
     if (shouldWrite) {
       writeSettings(_settings);
@@ -79,6 +83,8 @@ export default function App() {
     noiseReduction,
     setNoiseReduction,
     shouldWrite,
+    journalDir,
+    setJournalDir,
   ]);
 
   // to initialize settings
@@ -95,6 +101,9 @@ export default function App() {
       }
       if (_settings.noiseReduction !== undefined) {
         setNoiseReduction(_settings.noiseReduction);
+      }
+      if (_settings.fileDirectory !== undefined) {
+        setJournalDir(getSAFDir(_settings.fileDirectory));
       }
       setShouldWrite(true);
     });

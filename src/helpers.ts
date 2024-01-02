@@ -1,9 +1,10 @@
 import {WhisperContext, initWhisper} from 'whisper.rn';
 import * as FileSystem from 'expo-file-system';
-import {getJournalDir, modelHost} from './constants';
+import {docTree, docDirName, modelHost} from './constants';
 import {Platform} from 'react-native';
 import {unzip} from 'react-native-zip-archive';
-import {ModelName, SettingsContextType} from './types';
+import {ModelName, SettingsContextType, FileDirectoryType} from './types';
+import React from 'react';
 
 // using china locale code so the date format is YMD
 const formatter = new Intl.DateTimeFormat('zh-u-hc-h24', {
@@ -15,6 +16,16 @@ const formatter = new Intl.DateTimeFormat('zh-u-hc-h24', {
   second: 'numeric',
   hour12: false,
 });
+
+// custom react hook to get journal directory and relevant functions/namespace
+export function getSAFDir(fileDir: string): FileDirectoryType {
+  return {
+    fileDir,
+    saf: true,
+    readDirectoryAsync: FileSystem.StorageAccessFramework.readDirectoryAsync,
+    makeDirectoryAsync: FileSystem.StorageAccessFramework.makeDirectoryAsync,
+  };
+}
 
 export function log(message: any, fn: (message: any) => void = console.log) {
   fn(message);
@@ -51,28 +62,41 @@ export function formatTimeString(time: number | undefined): string {
   return out;
 }
 
-export function getDummyAsset(parentDir: string, filename: string) {
-  const [name, extension] = filename.split('.', 2);
-
+export function getDummyAsset(filename: string) {
   return {
     downloaded: true,
     downloading: false,
     hash: null,
     height: null,
-    localUri: `${parentDir}/${filename}`,
-    name,
-    type: `.${extension}`,
-    uri: `${parentDir}/${filename}`,
+    localUri: filename,
+    name: filename,
+    type: '.wav',
+    uri: filename,
     width: null,
   };
 }
 
 // Checks if directory exists. If not, creates it
-export async function ensureDirExists(dir: string) {
-  const dirInfo = await FileSystem.getInfoAsync(dir);
-  if (!dirInfo.exists) {
-    log("Directory doesn't exist, creating...");
-    await FileSystem.makeDirectoryAsync(dir, {intermediates: true});
+export async function ensureDirExists(parentDir: string, dirName: string = '') {
+  const dir = parentDir + dirName;
+  try {
+    const dirInfo = await FileSystem.getInfoAsync(dir);
+    if (!dirInfo.exists) {
+      log("Directory doesn't exist, creating...");
+      await FileSystem.makeDirectoryAsync(dir, {intermediates: true});
+    }
+  } catch (error) {
+    // presumably caused by being a SAF URI, which is probably fine and ignorable
+    // just try to create dir and hope nothing goes wrong
+    log(`error in ensureDirExists: ${error}`);
+    if (dirName !== '') {
+      FileSystem.StorageAccessFramework.makeDirectoryAsync(
+        parentDir,
+        dirName,
+      ).then((value: string) => {
+        log(value);
+      });
+    }
   }
 }
 
@@ -83,22 +107,27 @@ export function writeSettings(settings: SettingsContextType) {
     language,
     translate,
     noiseReduction,
+    journalDir,
   }) => ({
     modelName,
     language,
     translate,
     noiseReduction,
+    fileDirectory: journalDir.saf ? journalDir.fileDir : undefined,
   }))(settings);
   const settingsString = JSON.stringify(selectedSettings);
+  log(settingsString);
+  FileSystem.writeAsStringAsync(docDirName + 'settings.json', settingsString);
+}
 
-  getJournalDir().then(journalDir => {
-    FileSystem.writeAsStringAsync(journalDir + 'settings.json', settingsString);
-  });
+export function readableUri(uri: string) {
+  const readable = decodeURIComponent(uri);
+  log(readable);
+  return readable.replace(docTree, '');
 }
 
 export async function readSettings() {
-  const journalDir = await getJournalDir();
-  const settingsFile = journalDir + 'settings.json';
+  const settingsFile = docDirName + 'settings.json';
   const fileInfo = await FileSystem.getInfoAsync(settingsFile);
   if (fileInfo.exists) {
     const settingsString = await FileSystem.readAsStringAsync(settingsFile);

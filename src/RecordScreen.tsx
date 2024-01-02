@@ -8,7 +8,6 @@ import {
 import {Audio} from 'expo-av';
 import {FFmpegKit, ReturnCode} from 'ffmpeg-kit-react-native';
 import type {TranscribeFileOptions, WhisperContext} from 'whisper.rn';
-import {getJournalDir} from './constants';
 import {
   log,
   ensureDirExists,
@@ -21,12 +20,12 @@ import type {ModelName} from './types';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import * as FileSystem from 'expo-file-system';
 import {StyleSheet, View} from 'react-native';
+import {docDir, docDirName} from './constants';
 
 export default function RecordScreen() {
   const insets = useSafeAreaInsets();
   const settings = React.useContext(SettingsContext);
-
-  const [docDir, setDocDir] = React.useState('');
+  const journalDir = settings.journalDir;
   const [loadedModel, setLoadedModel] = React.useState<ModelName | undefined>();
   const [canRecord, setCanRecord] = React.useState(false);
   const [isRecording, setIsRecording] = React.useState<
@@ -52,20 +51,15 @@ export default function RecordScreen() {
 
   React.useEffect(() => {
     log('called useEffect hook');
-    if (docDir === '') {
-      getJournalDir().then(dir => {
-        setDocDir(dir);
-      });
-    } else if (!loadedModel || loadedModel !== settings.modelName) {
+    if (!loadedModel || loadedModel !== settings.modelName) {
       setStatusAndLog(
         `Downloading and initializing model ${settings.modelName}`,
       );
       setCanRecord(false);
-      // TODO: add download progress bar
       initializeContext(
         whisperContext,
         setWhisperContext,
-        docDir,
+        docDirName,
         settings.modelName,
         data => {
           if (data.totalBytesExpectedToWrite !== -1) {
@@ -80,7 +74,7 @@ export default function RecordScreen() {
         setStatusAndLog('Ready to record!');
       });
     }
-  }, [docDir, whisperContext, settings.modelName, loadedModel]);
+  }, [whisperContext, settings.modelName, loadedModel]);
 
   async function transcribe(filename: string) {
     if (!whisperContext) {
@@ -110,10 +104,11 @@ export default function RecordScreen() {
       },
     };
     log(options);
+    // TODO: would this work with SAF URIs?
     const {
       // stop,
       promise,
-    } = whisperContext.transcribe(docDir + filename, options);
+    } = whisperContext.transcribe(docDirName + filename, options);
     promise.then(transcript => {
       const endTime = Date.now();
       log(
@@ -173,12 +168,14 @@ export default function RecordScreen() {
       const uri = isRecording.getURI();
       log(`Recording stopped and stored at ${uri}`);
       // use ffmpeg to convert output file to 16-bit wav for whisper
-      // TODO: clean up this part here
-      const dirName = getFilename('');
-      const subDir = `${docDir}${dirName}/`;
-      const uriOut = subDir + dirName + '.wav';
-      const filename = `${dirName}/${dirName}.wav`;
-      await ensureDirExists(subDir);
+      // TODO: can ffmpeg write straight to the SAF URI?
+      // we write to the document directory first
+      // then if it's an SAF URI, we move it to the journalDir
+      const fileName = getFilename('');
+      const uriOut = `${docDir.fileDir}${fileName}.wav`;
+      const wavFile = `${fileName}.wav`;
+      // TODO: ensure that the journalDir.fileDir itself exists
+      await ensureDirExists(docDirName);
       setStatusAndLog('Converting file...');
       const noiseReductionString = settings.noiseReduction
         ? '-af "afftdn=nf=-25" '
@@ -190,16 +187,46 @@ export default function RecordScreen() {
 
         if (ReturnCode.isSuccess(returnCode)) {
           log(`Converted file successfully written to ${uriOut}`);
+          // if saf journalDir, create copy
+          if (journalDir.saf) {
+            // TODO: not sure whether x-wav will work for all platforms
+            const wavUri =
+              await FileSystem.StorageAccessFramework.createFileAsync(
+                journalDir.fileDir,
+                fileName,
+                'audio/x-wav',
+              );
+            // read converted file and copy to file system
+            const base64wav = await FileSystem.readAsStringAsync(uriOut, {
+              encoding: 'base64',
+            });
+            await FileSystem.StorageAccessFramework.writeAsStringAsync(
+              wavUri,
+              base64wav,
+              {encoding: 'base64'},
+            );
+          }
           // initiate transcription
-          const transcript = await transcribe(filename);
+          const transcript = await transcribe(wavFile);
           if (transcript) {
             const {result} = transcript;
             setStatusAndLog('Writing to file...');
-            FileSystem.writeAsStringAsync(
-              `${subDir}${dirName}.md`,
-              result,
-            ).then(() => {
-              setStatusAndLog(`Done writing to file '${dirName}'!`);
+            let transcriptName = `${docDir.fileDir}${fileName}.md`;
+            // create SAF file before writing to it
+            if (journalDir.saf) {
+              transcriptName =
+                await FileSystem.StorageAccessFramework.createFileAsync(
+                  journalDir.fileDir,
+                  fileName,
+                  'text/markdown',
+                );
+              // delete wav in document directory
+              FileSystem.deleteAsync(uriOut, {idempotent: true}).then(() => {
+                log(`deleted ${uriOut} successfully`);
+              });
+            }
+            FileSystem.writeAsStringAsync(transcriptName, result).then(() => {
+              setStatusAndLog(`Done writing to file '${fileName}'!`);
             });
           }
           // SUCCESS

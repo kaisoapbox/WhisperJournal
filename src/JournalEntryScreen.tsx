@@ -7,13 +7,12 @@ import {
   Surface,
   Text,
 } from 'react-native-paper';
-import {RootParamList} from './types';
+import {JournalEntry, RootParamList} from './types';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {getJournalDir} from './constants';
 import * as FileSystem from 'expo-file-system';
 import {Audio} from 'expo-av';
 import type {AVPlaybackStatus} from 'expo-av';
-import {getDummyAsset, formatTimeString} from './helpers';
+import {getDummyAsset, formatTimeString, log} from './helpers';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ScrollView, StyleSheet, View} from 'react-native';
 
@@ -21,7 +20,7 @@ type Props = NativeStackScreenProps<RootParamList, 'JournalEntry'>;
 
 export default function JournalEntryScreen({route}: Props) {
   const insets = useSafeAreaInsets();
-  const {subDir} = route.params;
+  const {name, entry} = route.params;
   const [recording, setRecording] = React.useState<Audio.Sound | undefined>();
   const [progress, setProgress] = React.useState(0);
   const [duration, setDuration] = React.useState<number | undefined>();
@@ -33,8 +32,9 @@ export default function JournalEntryScreen({route}: Props) {
     if (!playbackStatus.isLoaded) {
       // Update UI for the unloaded state
       if (playbackStatus.error) {
-        console.log(
+        log(
           `Encountered a fatal error during playback: ${playbackStatus.error}`,
+          console.error,
         );
         // Send Expo team the error on Slack or the forums so we can help you debug!
       }
@@ -76,32 +76,20 @@ export default function JournalEntryScreen({route}: Props) {
   }
 
   React.useEffect(() => {
-    getJournalDir().then(journalDir => {
-      FileSystem.readDirectoryAsync(journalDir + subDir).then(async files => {
-        console.log(files);
-        const wavs = files.filter(filename => {
-          return filename.endsWith('.wav');
-        });
-        const transcripts = files.filter(filename => {
-          return filename.endsWith('.md');
-        });
-        if (wavs.length > 0) {
-          const {sound} = await Audio.Sound.createAsync(
-            getDummyAsset(journalDir + subDir, wavs[0]),
-          );
-          setRecording(sound);
-          sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
-        }
-        if (transcripts.length > 0) {
-          setTranscript(
-            await FileSystem.readAsStringAsync(
-              `${journalDir}${subDir}/${transcripts[0]}`,
-            ),
-          );
-        }
-      });
-    });
-  }, [subDir]);
+    async function updateEntry(_entry: JournalEntry) {
+      if (_entry.audio) {
+        const {sound} = await Audio.Sound.createAsync(
+          getDummyAsset(_entry.audio),
+        );
+        setRecording(sound);
+        sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
+      }
+      if (_entry.transcript) {
+        setTranscript(await FileSystem.readAsStringAsync(_entry.transcript));
+      }
+    }
+    updateEntry(entry);
+  }, [entry]);
 
   const styles = StyleSheet.create({
     player: {alignItems: 'center', justifyContent: 'center'},
@@ -131,7 +119,7 @@ export default function JournalEntryScreen({route}: Props) {
   return (
     <View style={styles.view}>
       <Text variant={'headlineSmall'} style={styles.headers}>
-        {subDir}
+        {name}
       </Text>
       {recording !== undefined && (
         <Surface style={styles.surface}>

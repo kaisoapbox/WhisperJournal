@@ -1,6 +1,11 @@
+export type JournalEntry = {
+  audio: string | undefined;
+  transcript: string | undefined;
+};
+
 export type RootParamList = {
   Home: undefined;
-  JournalEntry: {subDir: string};
+  JournalEntry: {entry: JournalEntry; name: string};
   Journal: undefined;
   Record: undefined;
   Settings: undefined;
@@ -18,6 +23,13 @@ export const allModelNames = [
 
 export type ModelName = (typeof allModelNames)[number];
 
+export type FileDirectoryType = {
+  fileDir: string;
+  saf: boolean;
+  readDirectoryAsync: (uri: string) => Promise<string[]>;
+  makeDirectoryAsync: (parentUri: string, dirName: string) => Promise<string>;
+};
+
 export type SettingsContextType = {
   isThemeDark: boolean;
   modelName: ModelName;
@@ -28,4 +40,6 @@ export type SettingsContextType = {
   setTranslate: React.Dispatch<React.SetStateAction<boolean>>;
   noiseReduction: boolean;
   setNoiseReduction: React.Dispatch<React.SetStateAction<boolean>>;
+  journalDir: FileDirectoryType;
+  setJournalDir: React.Dispatch<React.SetStateAction<FileDirectoryType>>;
 };

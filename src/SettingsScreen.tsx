@@ -1,10 +1,25 @@
 import React from 'react';
-import {RadioButton, SegmentedButtons, Divider, List} from 'react-native-paper';
+import {
+  RadioButton,
+  SegmentedButtons,
+  Divider,
+  List,
+  Button,
+} from 'react-native-paper';
 import {SettingsContext} from './SettingsContext';
 import {allModelNames} from './types';
 import type {ModelName} from './types';
+import * as FileSystem from 'expo-file-system';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {
+  GestureResponderEvent,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
+import {getSAFDir, log, readableUri} from './helpers';
+import {docDir} from './constants';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -15,6 +30,7 @@ export default function SettingsScreen() {
   const [noiseReduction, setNoiseReduction] = React.useState(
     settings.noiseReduction ? 'yes' : 'no',
   );
+  const [journalDir, setJournalDir] = React.useState(settings.journalDir);
 
   const styles = StyleSheet.create({
     spacing: {
@@ -28,6 +44,24 @@ export default function SettingsScreen() {
       paddingRight: insets.right,
     },
   });
+
+  async function onFileDirectoryPress(_e: GestureResponderEvent) {
+    const permsResult =
+      await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+    if (permsResult.granted) {
+      const uri = permsResult.directoryUri;
+      log(readableUri(uri));
+      const newDir = getSAFDir(uri);
+      setJournalDir(newDir);
+      settings.setJournalDir(newDir);
+    }
+  }
+
+  function revertDocDirectoryPress(_e: GestureResponderEvent) {
+    setJournalDir(docDir);
+    settings.setJournalDir(docDir);
+  }
+
   return (
     <View style={styles.view}>
       <ScrollView style={styles.spacing}>
@@ -73,6 +107,27 @@ export default function SettingsScreen() {
           />
         </List.Section>
         <Divider />
+        {Platform.OS === 'android' && (
+          <>
+            <List.Section>
+              <List.Subheader>File Directory</List.Subheader>
+              <Button
+                icon="folder"
+                mode="contained"
+                onPress={onFileDirectoryPress}>
+                {journalDir.saf
+                  ? `Selected: ${readableUri(journalDir.fileDir)}`
+                  : 'Select Directory'}
+              </Button>
+              {journalDir.saf && (
+                <Button onPress={revertDocDirectoryPress} compact={true}>
+                  Use App Directory
+                </Button>
+              )}
+            </List.Section>
+            <Divider />
+          </>
+        )}
         <List.Section>
           {/* TODO: show which models are downloaded */}
           <List.Subheader>Select model</List.Subheader>

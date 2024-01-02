@@ -1,5 +1,11 @@
 import React from 'react';
-import {ModelName, SettingsContextType, allModelNames} from './types';
+import {
+  ModelName,
+  SettingsContextType,
+  allModelNames,
+  FileDirectoryType,
+} from './types';
+import {docDir} from './constants';
 
 export const SettingsContext = React.createContext<SettingsContextType>({
   isThemeDark: false,
@@ -12,5 +18,10 @@ export const SettingsContext = React.createContext<SettingsContextType>({
   noiseReduction: true,
   setNoiseReduction: (() => {}) as React.Dispatch<
     React.SetStateAction<boolean>
+  >,
+  // android only
+  journalDir: docDir,
+  setJournalDir: (() => {}) as React.Dispatch<
+    React.SetStateAction<FileDirectoryType>
   >,
 });
