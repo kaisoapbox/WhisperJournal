@@ -225,9 +225,11 @@ export default function RecordScreen() {
                 log(`deleted ${uriOut} successfully`);
               });
             }
-            FileSystem.writeAsStringAsync(transcriptName, result).then(() => {
-              setStatusAndLog(`Done writing to file '${fileName}'!`);
-            });
+            FileSystem.writeAsStringAsync(transcriptName, result.trim()).then(
+              () => {
+                setStatusAndLog(`Done writing to file '${fileName}'!`);
+              },
+            );
           }
           // SUCCESS
         } else if (ReturnCode.isCancel(returnCode)) {
