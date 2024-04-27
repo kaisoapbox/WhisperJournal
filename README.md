@@ -53,6 +53,6 @@ yarn android
 yarn ios
 ```
 
-# About Kaizo & Co.
+# About Kai
 
-We make cool things, check out our [website](https://kaizoco.com)!
+I make cool things, check out my personal [website](https://kaisoapbox.github.io)! You can support future development of this (and other projects) from [my Ko-Fi page](https://ko-fi.com/kaisoapbox), thanks for taking a look <3
